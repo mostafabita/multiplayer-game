@@ -6,50 +6,39 @@ const compression = require('compression');
 const colors = require('colors');
 
 const port = process.env.PORT || 3000;
-const clients = [];
-const sockets = {};
+const clients = {};
 
 app.use(compression({}));
 app.use(express.static(__dirname));
 
-app.get('/', (req, res) => res.sendFile(__dirname));
+app.get('/', (req, res) => res.sendFile(__dirname, 'index.html'));
 
 io.on('connection', socket => {
-  const currentClient = {
-    id: socket.id,
+  const client = {
     username: socket.handshake.query.username,
+    x: Math.floor(Math.random() * 670) + 50,
+    y: Math.floor(Math.random() * 350) + 50,
   };
 
-  if (clients.find(client => client.id === currentClient.id)) {
-    console.log(`[INFO] Client '${currentClient.username}' already connected, kicking...`.bgRed);
-    socket.disconnect();
-    return;
-  }
+  clients[socket.id] = client;
 
-  sockets[currentClient.id] = socket;
-  clients.push(currentClient);
-  io.emit('clientJoin', { username: currentClient.username, date: new Date(), type: 'info' });
-
-  console.log(`[INFO] Client '${currentClient.username}' connected!`.green);
-  console.log(`[INFO] Total clients: ${clients.length}`);
+  console.log(`[INFO] Client '${client.username}' connected!`.blue);
+  io.emit('clientJoin', { username: client.username, date: new Date(), type: 'info' });
 
   socket.on('disconnect', () => {
-    const now = new Date();
-    if (clients.find(client => client.id === currentClient.id)) {
-      clients.splice(clients.indexOf(currentClient), 1);
-    }
-    console.log(`[INFO] Client '${currentClient.username}' disconnected!`.yellow);
+    delete clients[socket.id];
+    console.log(`[INFO] Client '${client.username}' disconnected!`.yellow);
+
     socket.broadcast.emit('clientDisconnect', {
-      username: currentClient.username,
-      date: now,
+      username: client.username,
+      date: new Date(),
       type: 'info',
     });
   });
 
   socket.on('clientMessage', data => {
     const now = new Date();
-    const time = `${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}`;
-    console.log(`[MESSAGE] [${time}] ${data.username} : ${data.message}`);
+    console.log(`[MESSAGE] [${formatTime(now)}] ${data.username}: ${data.message}`.blue);
     socket.broadcast.emit('serverMessage', {
       username: data.username,
       message: data.message,
@@ -57,6 +46,34 @@ io.on('connection', socket => {
       type: 'message',
     });
   });
+
+  socket.on('movement', function(data) {
+    const player = clients[socket.id] || {};
+    if (data.left) {
+      player.x -= 5;
+    }
+    if (data.up) {
+      player.y -= 5;
+    }
+    if (data.right) {
+      player.x += 5;
+    }
+    if (data.down) {
+      player.y += 5;
+    }
+  });
+
+  setInterval(() => {
+    io.sockets.emit('state', clients);
+  }, 1000 / 60);
 });
 
-server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${port}`.blue));
+formatTime = input => {
+  const date = new Date(input);
+  const hours = date.getHours();
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const newHours = hours > 12 ? hours - 12 : hours;
+  return `${newHours}:${('0' + date.getMinutes()).slice(-2)} ${period}`;
+};
+
+server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${port}`.magenta));

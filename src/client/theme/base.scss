@@ -88,3 +88,10 @@ footer {
     }
   }
 }
+
+#gameboard {
+  canvas {
+    border: $gameboard-border;
+    background-color: $gameboard-background-color;
+  }
+}

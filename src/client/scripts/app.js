@@ -2,9 +2,12 @@ import Client from './client';
 import Handlebars from 'handlebars';
 import { formatTime } from './utils';
 import { messageTemplate } from './templates';
+import Game from './game';
 
 export default class App {
   constructor() {
+    this.currentUserLabels = $('.current-username');
+
     this.startupSection = $('#startupSection');
     this.startUpForm = $('#startupForm');
     this.usernameInput = $('#usernameInput');
@@ -14,25 +17,41 @@ export default class App {
     this.messageForm = $('#messageForm');
     this.messageInput = $('#messageInput');
 
+    this.gameSection = $('#gameSection');
+    this.gameboard = document.getElementById('gameboard');
+
     this.client = null;
   }
 
   init() {
+    // TODO: remove below line after test
+    this.usernameInput.val('mostafa');
+    this.start();
+
     this.startUpForm.bind('submit', event => {
       event.preventDefault();
-      this.startupSection.fadeOut(500, () => {
-        this.messageBoxSection.fadeIn();
-        this.client = new Client(this.usernameInput.val());
-        this.messageInput.focus();
-        this.handleSocketEvents();
-      });
+      this.start();
     });
 
     this.messageForm.bind('submit', event => {
       event.preventDefault();
-      const value = this.messageInput.val();
-      this.messageInput.val('');
-      this.sendMessage(value);
+      this.sendMessage(this.messageInput.val());
+    });
+  }
+
+  start() {
+    const username = this.usernameInput.val();
+    this.currentUserLabels.html('@' + username);
+
+    this.client = new Client(username);
+    this.game = new Game(this.gameboard, 720, 400);
+
+    this.handleSocketEvents();
+
+    this.startupSection.fadeOut(500, () => {
+      // this.messageBoxSection.fadeIn();
+      this.gameSection.fadeIn();
+      this.messageInput.focus();
     });
   }
 
@@ -51,7 +70,11 @@ export default class App {
       });
     };
 
-    this.client.onServerMessage = this.client.onClientMessage = data => {
+    this.client.onServerMessage = data => {
+      this.log(data);
+    };
+
+    this.client.onClientMessage = data => {
       this.log({
         ...data,
         me: this.client.username === data.username,
@@ -65,10 +88,12 @@ export default class App {
       });
     };
 
-    this.client.connect();
+    const socket = this.client.connect();
+    this.game.create(socket);
   }
 
   sendMessage(message) {
+    this.messageInput.val('');
     this.client.sendMessage(message);
   }
 

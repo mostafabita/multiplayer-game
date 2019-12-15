@@ -1,8 +1,3 @@
-export const logType = {
-  info: 'info',
-  message: 'message',
-};
-
 export function formatTime(input) {
   const date = new Date(input);
   const hours = date.getHours();

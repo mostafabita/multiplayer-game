@@ -21,7 +21,8 @@
     <header class="d-flex justify-content-between align-items-center mb-auto">
       <h3 class="m-0 text-white">
         {{htmlWebpackPlugin.options.title}}
-        <small>— {{htmlWebpackPlugin.options.subtitle}}</small>
+        <small>—</small>
+        <small class="current-username">{{htmlWebpackPlugin.options.subtitle}}</small>
       </h3>
       <nav class="nav justify-content-center">
         <a class="nav-link active" href>Game</a>
@@ -46,18 +47,24 @@
       </section>
       {{!-- Message box section --}}
       <section id="messageBoxSection" class="hide">
-        <h1 class="mb-3 text-white">Messages _</h1>
+        <h1 class="mb-3 text-white"># Messages _</h1>
         <ul id="messageList" class="list-group message-list">
+          {{!-- Messages here --}}
         </ul>
         <form id="messageForm">
           <div class="input-group mb-3">
             <input id="messageInput" type="text" autocomplete="off" required class="form-control"
               placeholder="Type here ...">
             <div class="input-group-append">
-              <button class="btn btn-light text-primary" type="button">Send</button>
+              <button class="btn btn-light text-primary" type="submit">Send</button>
             </div>
           </div>
         </form>
+      </section>
+      {{!-- Game section --}}
+      <section id="gameSection" class="hide">
+        <h1 class="mb-3 text-white"># Gameboard _</h1>
+        <div id="gameboard"></div>
       </section>
     </main>
 
