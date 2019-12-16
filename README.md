@@ -1,4 +1,4 @@
-# Multiplayer Game
+# Multiplayer Snake Game
 
 Multiplayer game using `nodejs` based on `websocket`
 

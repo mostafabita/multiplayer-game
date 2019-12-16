@@ -1,11 +1,14 @@
-$font-family-base: 'Roboto', sans-serif;
-$font-weight-base: 400;
-$font-weight-medium: 500;
-$path-to-images: '/assets';
+$font-family-base: 'Roboto', 'Helvetica Neue', sans-serif;
 
-$background-color: #333;
+$enable-shadows: true;
+$enable-rounded: false;
+
+$body-bg: #333;
 $body-color: #fff;
-$input-focus-border-color: #fff;
-$message-color: #999;
-$message-meta-color: #007bff;
-$message-meta-alt-color: #007bff;
+
+$component-active-bg: $body-color;
+
+$playground-border: 1px solid $body-color;
+$playground-bg: #222;
+
+$path-to-images: '/assets';

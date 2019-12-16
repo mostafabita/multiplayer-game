@@ -3,12 +3,10 @@ export const messageTemplate = `
         <span class="prefix">{{prefix}}</span>
         {{#if username}}
             {{#if me}}
-                <strong class="username">you</strong>
+                <strong class="username">@you</strong>
             {{/if}}
             {{#unless me}}
-                <strong class="username">
-                    {{#ifEquals type "info"}}#{{/ifEquals}}{{username}}
-                </strong>
+                <strong class="username">@{{username}}</strong>
             {{/unless}}
         {{/if}}
         <small class="date">{{date}}</small>

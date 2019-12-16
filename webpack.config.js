@@ -25,15 +25,8 @@ module.exports = {
       contact: 'http://www.linkedin.com/in/mostafabita',
       template: 'src/client/index.hbs',
       files: {
-        css: [
-          'https://fonts.googleapis.com/css?family=Roboto:400,500,700,900&display=swap',
-          'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css',
-        ],
-        js: [
-          'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js',
-          // 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js',
-          // 'https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.5.3/handlebars.min.js',
-        ],
+        css: ['https://fonts.googleapis.com/css?family=Roboto:400,500,700,900&display=swap'],
+        js: ['https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'],
       },
     }),
     new NodemonPlugin({
