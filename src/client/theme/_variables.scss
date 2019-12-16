@@ -1,16 +1,14 @@
-$font-family-base: 'Roboto', sans-serif;
-$font-weight-base: 400;
-$font-weight-medium: 500;
+$font-family-base: 'Roboto', 'Helvetica Neue', sans-serif;
+
+$enable-shadows: true;
+$enable-rounded: false;
+
+$body-bg: #333;
+$body-color: #fff;
+
+$component-active-bg: $body-color;
+
+$playground-border: 1px solid $body-color;
+$playground-bg: #222;
 
 $path-to-images: '/assets';
-
-$background-color: #333;
-$body-color: #fff;
-$input-focus-border-color: #fff;
-
-$message-color: #999;
-$message-meta-color: #28a745;
-$message-meta-alt-color: #007bff;
-
-$gameboard-border: 1px solid #fff;
-$gameboard-background-color: #222;

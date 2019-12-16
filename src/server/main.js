@@ -10,14 +10,16 @@ const clients = {};
 
 app.use(compression({}));
 app.use(express.static(__dirname));
-
 app.get('/', (req, res) => res.sendFile(__dirname, 'index.html'));
+
+server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${port}`.magenta));
 
 io.on('connection', socket => {
   const client = {
     username: socket.handshake.query.username,
-    x: Math.floor(Math.random() * 670) + 50,
-    y: Math.floor(Math.random() * 350) + 50,
+    x: Math.floor(Math.random() * (700 - 50) + 50),
+    y: Math.floor(Math.random() * (350 - 50) + 50),
+    color: getRandomColor(),
   };
 
   clients[socket.id] = client;
@@ -76,4 +78,11 @@ formatTime = input => {
   return `${newHours}:${('0' + date.getMinutes()).slice(-2)} ${period}`;
 };
 
-server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${port}`.magenta));
+getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};

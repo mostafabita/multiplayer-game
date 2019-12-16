@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <div class="container d-flex flex-column justify-content-end h-100 p-4">
+  <div class="container-lg d-flex flex-column justify-content-end h-100 mw-fixed p-4">
     <header class="d-flex justify-content-between align-items-center mb-auto">
       <h3 class="m-0 text-white">
         {{htmlWebpackPlugin.options.title}}
@@ -45,26 +45,26 @@
           <button type="submit" class="btn btn-lg btn-outline-light">Let's go</button>
         </form>
       </section>
-      {{!-- Message box section --}}
-      <section id="messageBoxSection" class="hide">
-        <h1 class="mb-3 text-white"># Messages _</h1>
-        <ul id="messageList" class="list-group message-list">
-          {{!-- Messages here --}}
-        </ul>
-        <form id="messageForm">
-          <div class="input-group mb-3">
-            <input id="messageInput" type="text" autocomplete="off" required class="form-control"
-              placeholder="Type here ...">
-            <div class="input-group-append">
-              <button class="btn btn-light text-primary" type="submit">Send</button>
-            </div>
+      {{!-- Warmup section --}}
+      <section id="warmupSection">
+        <div class="d-flex">
+          {{!-- <img src="assets/snake.svg" alt="Snake" width="50"> --}}
+          <h1 class="mb-3 text-white">~ Playground </h1>
+        </div>
+        <div class="d-flex flex-row columns shadow-lg">
+          {{!-- Messages --}}
+          <div class="message-box-container mx-1 d-flex flex-column justify-content-between">
+            <ul id="messageList" class="list-group message-list"></ul>
+            <form id="messageForm">
+              <input id="messageInput" type="text" autocomplete="off" required class="form-control"
+                placeholder="Chat here ...">
+            </form>
           </div>
-        </form>
-      </section>
-      {{!-- Game section --}}
-      <section id="gameSection" class="hide">
-        <h1 class="mb-3 text-white"># Gameboard _</h1>
-        <div id="gameboard"></div>
+          {{!-- Game --}}
+          <div class="game-container mx-1 d-flex flex-fill">
+            <canvas id="playground"></canvas>
+          </div>
+        </div>
       </section>
     </main>
 

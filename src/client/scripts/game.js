@@ -6,12 +6,8 @@
 // });
 
 export default class Game {
-  constructor(container, width, height) {
-    this.container = container;
-    this.width = width;
-    this.height = height;
-
-    this.canvas = document.createElement('canvas');
+  constructor(canvas, width, height) {
+    this.canvas = canvas;
     this.canvas.width = width;
     this.canvas.height = height;
 
@@ -27,7 +23,6 @@ export default class Game {
 
   create(socket) {
     this.socket = socket;
-    this.container.appendChild(this.canvas);
 
     document.addEventListener('keydown', event => {
       switch (event.keyCode) {
@@ -64,14 +59,15 @@ export default class Game {
     });
 
     this.socket.on('state', players => {
-      this.context.clearRect(0, 0, 800, 600);
-      this.context.fillStyle = 'red';
+      const context = this.context;
+      context.clearRect(0, 0, 800, 600);
       for (const id in players) {
         if (players.hasOwnProperty(id)) {
           const player = players[id];
-          this.context.beginPath();
-          this.context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-          this.context.fill();
+          context.fillStyle = player.color;
+          context.beginPath();
+          context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
+          context.fill();
         }
       }
     });

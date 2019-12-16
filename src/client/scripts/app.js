@@ -12,24 +12,28 @@ export default class App {
     this.startUpForm = $('#startupForm');
     this.usernameInput = $('#usernameInput');
 
-    this.messageBoxSection = $('#messageBoxSection');
+    this.warmupSection = $('#warmupSection');
+
     this.messageList = $('#messageList');
     this.messageForm = $('#messageForm');
     this.messageInput = $('#messageInput');
 
-    this.gameSection = $('#gameSection');
-    this.gameboard = document.getElementById('gameboard');
-
-    this.client = null;
+    this.playground = {
+      canvas: document.getElementById('playground'),
+      width: 700,
+      height: 400,
+    };
   }
 
   init() {
-    // TODO: remove below line after test
-    this.usernameInput.val('mostafa');
+    // **************************** [ TODO: remove 2 below lines after test ] **************************** //
+    this.usernameInput.val(Math.floor(Math.random() * 1000));
+    $('.container-lg').removeClass('mw-fixed');
     this.start();
 
     this.startUpForm.bind('submit', event => {
       event.preventDefault();
+      $('.container-lg').removeClass('mw-fixed');
       this.start();
     });
 
@@ -41,16 +45,15 @@ export default class App {
 
   start() {
     const username = this.usernameInput.val();
-    this.currentUserLabels.html('@' + username);
+    this.currentUserLabels.html(`@${username}`);
 
     this.client = new Client(username);
-    this.game = new Game(this.gameboard, 720, 400);
+    this.game = new Game(this.playground.canvas, this.playground.width, this.playground.height);
 
     this.handleSocketEvents();
 
     this.startupSection.fadeOut(500, () => {
-      // this.messageBoxSection.fadeIn();
-      this.gameSection.fadeIn();
+      this.warmupSection.fadeIn();
       this.messageInput.focus();
     });
   }
