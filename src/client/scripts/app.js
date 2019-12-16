@@ -27,9 +27,9 @@ export default class App {
 
   init() {
     // **************************** [ TODO: remove 2 below lines after test ] **************************** //
-    this.usernameInput.val(Math.floor(Math.random() * 1000));
-    $('.container-lg').removeClass('mw-fixed');
-    this.start();
+    // this.usernameInput.val(Math.floor(Math.random() * 1000));
+    // $('.container-lg').removeClass('mw-fixed');
+    // this.start();
 
     this.startUpForm.bind('submit', event => {
       event.preventDefault();

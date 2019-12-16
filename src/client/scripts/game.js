@@ -60,7 +60,7 @@ export default class Game {
 
     this.socket.on('state', players => {
       const context = this.context;
-      context.clearRect(0, 0, 800, 600);
+      context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       for (const id in players) {
         if (players.hasOwnProperty(id)) {
           const player = players[id];
