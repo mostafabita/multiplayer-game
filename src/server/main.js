@@ -14,7 +14,7 @@ app.get('/', (req, res) => res.sendFile(__dirname, 'index.html'));
 
 server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${port}`.magenta));
 
-io.on('connection', socket => {
+io.on('connection', (socket) => {
   const client = {
     username: socket.handshake.query.username,
     x: Math.floor(Math.random() * (700 - 50) + 50),
@@ -25,7 +25,7 @@ io.on('connection', socket => {
   clients[socket.id] = client;
 
   console.log(`[INFO] Client '${client.username}' connected!`.blue);
-  io.emit('clientJoin', { username: client.username, date: new Date(), type: 'info' });
+  io.sockets.emit('clientJoin', { username: client.username, date: new Date(), type: 'info' });
 
   socket.on('disconnect', () => {
     delete clients[socket.id];
@@ -38,7 +38,7 @@ io.on('connection', socket => {
     });
   });
 
-  socket.on('clientMessage', data => {
+  socket.on('clientMessage', (data) => {
     const now = new Date();
     console.log(`[MESSAGE] [${formatTime(now)}] ${data.username}: ${data.message}`.blue);
     socket.broadcast.emit('serverMessage', {
@@ -49,28 +49,32 @@ io.on('connection', socket => {
     });
   });
 
-  socket.on('movement', function(data) {
+  socket.on('movement', (data) => {
     const player = clients[socket.id] || {};
-    if (data.left) {
-      player.x -= 5;
-    }
-    if (data.up) {
-      player.y -= 5;
-    }
-    if (data.right) {
-      player.x += 5;
-    }
-    if (data.down) {
-      player.y += 5;
+    switch (data.direction) {
+      case 'UP':
+        player.y -= 5;
+        break;
+      case 'RIGHT':
+        player.x += 5;
+        break;
+      case 'DOWN':
+        player.y += 5;
+        break;
+      case 'LEFT':
+        player.x -= 5;
+        break;
+      default:
+        break;
     }
   });
 
   setInterval(() => {
     io.sockets.emit('state', clients);
-  }, 1000 / 60);
+  }, 1000 / 2);
 });
 
-formatTime = input => {
+formatTime = (input) => {
   const date = new Date(input);
   const hours = date.getHours();
   const period = hours >= 12 ? 'PM' : 'AM';

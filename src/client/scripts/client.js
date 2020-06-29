@@ -20,9 +20,9 @@ export default class Client {
   }
 
   subscribeSocket() {
-    this.socket.on('clientDisconnect', data => this.onClientDisconnect(data));
-    this.socket.on('clientJoin', data => this.onClientJoin(data));
-    this.socket.on('serverMessage', data => this.onServerMessage(data));
+    this.socket.on('clientDisconnect', (data) => this.onClientDisconnect(data));
+    this.socket.on('clientJoin', (data) => this.onClientJoin(data));
+    this.socket.on('serverMessage', (data) => this.onServerMessage(data));
   }
 
   sendMessage(message) {

@@ -26,18 +26,18 @@ export default class App {
   }
 
   init() {
-    // **************************** [ TODO: remove 2 below lines after test ] **************************** //
-    // this.usernameInput.val(Math.floor(Math.random() * 1000));
-    // $('.container-lg').removeClass('mw-fixed');
-    // this.start();
+    // **************************** [ TODO: remove 3 below lines after test ] **************************** //
+    this.usernameInput.val(Math.floor(Math.random() * 1000));
+    $('.container-lg').removeClass('mw-fixed');
+    this.start();
 
-    this.startUpForm.bind('submit', event => {
+    this.startUpForm.bind('submit', (event) => {
       event.preventDefault();
       $('.container-lg').removeClass('mw-fixed');
       this.start();
     });
 
-    this.messageForm.bind('submit', event => {
+    this.messageForm.bind('submit', (event) => {
       event.preventDefault();
       this.sendMessage(this.messageInput.val());
     });
@@ -59,32 +59,32 @@ export default class App {
   }
 
   handleSocketEvents() {
-    this.client.onConnect = data => {
+    this.client.onConnect = (data) => {
       this.log({
         ...data,
         prefix: 'Connected to the application',
       });
     };
 
-    this.client.onClientJoin = data => {
+    this.client.onClientJoin = (data) => {
       this.log({
         ...data,
         prefix: 'joined',
       });
     };
 
-    this.client.onServerMessage = data => {
+    this.client.onServerMessage = (data) => {
       this.log(data);
     };
 
-    this.client.onClientMessage = data => {
+    this.client.onClientMessage = (data) => {
       this.log({
         ...data,
         me: this.client.username === data.username,
       });
     };
 
-    this.client.onClientDisconnect = data => {
+    this.client.onClientDisconnect = (data) => {
       this.log({
         ...data,
         prefix: 'left',

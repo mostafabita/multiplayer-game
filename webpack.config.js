@@ -5,7 +5,7 @@ const NodemonPlugin = require('nodemon-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  devtool: 'inline-source-map',
+  devtool: 'eval-source-map',
   entry: {
     client: './src/client/main.js',
   },
@@ -32,6 +32,7 @@ module.exports = {
     new NodemonPlugin({
       watch: path.resolve('./dist'),
       script: './dist/server.js',
+      browser: 'google chrome',
     }),
   ],
   module: {
