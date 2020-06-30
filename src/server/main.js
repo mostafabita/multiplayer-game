@@ -5,7 +5,22 @@ const io = require('socket.io')(server);
 const compression = require('compression');
 const colors = require('colors');
 
+const MOVEMENT = Object.freeze({
+  UP: 'UP',
+  DOWN: 'DOWN',
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT',
+  NONE: 'NONE',
+});
+
 const port = process.env.PORT || 3000;
+const playground = {
+  rows: 700,
+  cols: 400,
+  nutSize: 10,
+  maxNuts: 4,
+  speed: 1000 / 10,
+};
 const clients = {};
 
 app.use(compression({}));
@@ -17,8 +32,14 @@ server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${po
 io.on('connection', (socket) => {
   const client = {
     username: socket.handshake.query.username,
-    x: Math.floor(Math.random() * (700 - 50) + 50),
-    y: Math.floor(Math.random() * (350 - 50) + 50),
+    snake: {
+      x: getRandomInteger(0, playground.rows / playground.nutSize) * playground.nutSize,
+      y: getRandomInteger(0, playground.cols / playground.nutSize) * playground.nutSize,
+      deltaX: playground.nutSize,
+      deltaY: 0,
+      maxNuts: playground.maxNuts,
+      nuts: [],
+    },
     color: getRandomColor(),
   };
 
@@ -50,28 +71,52 @@ io.on('connection', (socket) => {
   });
 
   socket.on('movement', (data) => {
-    const player = clients[socket.id] || {};
-    switch (data.direction) {
-      case 'UP':
-        player.y -= 5;
-        break;
-      case 'RIGHT':
-        player.x += 5;
-        break;
-      case 'DOWN':
-        player.y += 5;
-        break;
-      case 'LEFT':
-        player.x -= 5;
-        break;
-      default:
-        break;
+    const snake = clients[socket.id].snake;
+    const rows = playground.rows;
+    const cols = playground.cols;
+    const nutSize = playground.nutSize;
+
+    if (data.direction === MOVEMENT.RIGHT && snake.deltaX === 0) {
+      snake.deltaX = nutSize;
+      snake.deltaY = 0;
+    }
+    if (data.direction === MOVEMENT.LEFT && snake.deltaX === 0) {
+      snake.deltaX = -nutSize;
+      snake.deltaY = 0;
+    }
+    if (data.direction === MOVEMENT.UP && snake.deltaY === 0) {
+      snake.deltaX = 0;
+      snake.deltaY = -nutSize;
+    }
+    if (data.direction === MOVEMENT.DOWN && snake.deltaY === 0) {
+      snake.deltaX = 0;
+      snake.deltaY = nutSize;
+    }
+
+    snake.x += snake.deltaX;
+    snake.y += snake.deltaY;
+
+    if (snake.x < 0) {
+      snake.x = rows - nutSize;
+    } else if (snake.x >= rows) {
+      snake.x = 0;
+    }
+
+    if (snake.y < 0) {
+      snake.y = cols - nutSize;
+    } else if (snake.y >= cols) {
+      snake.y = 0;
+    }
+
+    snake.nuts.unshift({ x: snake.x, y: snake.y, size: nutSize });
+    if (snake.nuts.length > snake.maxNuts) {
+      snake.nuts.pop();
     }
   });
 
   setInterval(() => {
     io.sockets.emit('state', clients);
-  }, 1000 / 2);
+  }, playground.speed);
 });
 
 formatTime = (input) => {
@@ -89,4 +134,8 @@ getRandomColor = () => {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
+};
+
+getRandomInteger = (min, max) => {
+  return Math.floor(Math.random() * (max - min)) + min;
 };

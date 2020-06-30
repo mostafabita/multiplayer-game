@@ -3,23 +3,25 @@ const MOVEMENT = Object.freeze({
   DOWN: 'DOWN',
   LEFT: 'LEFT',
   RIGHT: 'RIGHT',
-  NONE: 'NONE',
 });
 
 export default class Game {
-  constructor(canvas, width, height) {
+  constructor({ canvas, rows, cols, speed }) {
+    this.rows = rows;
+    this.cols = rows;
+    this.speed = speed;
     this.canvas = canvas;
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = rows;
+    this.canvas.height = cols;
     this.context = this.canvas.getContext('2d');
-    this.movement = MOVEMENT.NONE;
+    this.movement = MOVEMENT.RIGHT;
   }
 
   create(socket) {
     this.socket = socket;
 
     document.addEventListener('keydown', (event) => {
-      switch (event.code) {
+      switch (event.key) {
         case 'ArrowLeft':
           this.movement = MOVEMENT.LEFT;
           break;
@@ -32,22 +34,15 @@ export default class Game {
         case 'ArrowDown':
           this.movement = MOVEMENT.DOWN;
           break;
-        case 'Space':
-          this.movement = MOVEMENT.NONE;
-          break;
       }
     });
 
     this.socket.on('state', (players) => {
       const context = this.context;
-      // context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       for (const id in players) {
         if (players.hasOwnProperty(id)) {
-          const player = players[id];
-          context.fillStyle = player.color;
-          context.beginPath();
-          context.arc(player.x, player.y, 5, 0, 3 * Math.PI);
-          context.fill();
+          this.drawSnake(players[id]);
         }
       }
     });
@@ -56,6 +51,13 @@ export default class Game {
       this.socket.emit('movement', {
         direction: this.movement,
       });
-    }, 1000 / 2);
+    }, this.speed);
+  }
+
+  drawSnake(player) {
+    this.context.fillStyle = player.color;
+    player.snake.nuts.forEach((nut) => {
+      this.context.fillRect(nut.x, nut.y, nut.size - 1, nut.size - 1);
+    });
   }
 }

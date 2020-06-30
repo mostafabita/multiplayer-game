@@ -20,8 +20,9 @@ export default class App {
 
     this.playground = {
       canvas: document.getElementById('playground'),
-      width: 700,
-      height: 400,
+      rows: 700,
+      cols: 400,
+      speed: 1000 / 10,
     };
   }
 
@@ -48,7 +49,7 @@ export default class App {
     this.currentUserLabels.html(`@${username}`);
 
     this.client = new Client(username);
-    this.game = new Game(this.playground.canvas, this.playground.width, this.playground.height);
+    this.game = new Game(this.playground);
 
     this.handleSocketEvents();
 
