@@ -20,6 +20,11 @@ const playground = {
   nutSize: 10,
   maxNuts: 4,
   speed: 1000 / 10,
+  food: {
+    x: 0,
+    y: 0,
+    eaten: true,
+  },
 };
 const clients = {};
 
@@ -72,9 +77,7 @@ io.on('connection', (socket) => {
 
   socket.on('movement', (data) => {
     const snake = clients[socket.id].snake;
-    const rows = playground.rows;
-    const cols = playground.cols;
-    const nutSize = playground.nutSize;
+    const { rows, cols, nutSize, food } = playground;
 
     if (data.direction === MOVEMENT.RIGHT && snake.deltaX === 0) {
       snake.deltaX = nutSize;
@@ -108,14 +111,27 @@ io.on('connection', (socket) => {
       snake.y = 0;
     }
 
-    snake.nuts.unshift({ x: snake.x, y: snake.y, size: nutSize });
+    snake.nuts.unshift({ x: snake.x, y: snake.y });
+
+    if (food.x === snake.x && food.y === snake.y) {
+      food.eaten = true;
+      snake.maxNuts++;
+    }
+
+    if (food.eaten) {
+      food.x = getRandomInteger(0, playground.rows / playground.nutSize) * playground.nutSize;
+      food.y = getRandomInteger(0, playground.cols / playground.nutSize) * playground.nutSize;
+      food.color = getRandomColor();
+      food.eaten = false;
+    }
+
     if (snake.nuts.length > snake.maxNuts) {
       snake.nuts.pop();
     }
   });
 
   setInterval(() => {
-    io.sockets.emit('state', clients);
+    io.sockets.emit('state', [clients, playground]);
   }, playground.speed);
 });
 

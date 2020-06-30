@@ -37,12 +37,12 @@ export default class Game {
       }
     });
 
-    this.socket.on('state', (players) => {
+    this.socket.on('state', ([players, playground]) => {
       const context = this.context;
       context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       for (const id in players) {
         if (players.hasOwnProperty(id)) {
-          this.drawSnake(players[id]);
+          this.drawSnake(players[id], playground);
         }
       }
     });
@@ -54,10 +54,18 @@ export default class Game {
     }, this.speed);
   }
 
-  drawSnake(player) {
+  drawSnake(player, playground) {
+    const { food, nutSize } = playground;
+    if (!food.eaten) {
+      this.context.beginPath();
+      this.context.lineWidth = 4;
+      this.context.strokeStyle = food.color;
+      this.context.rect(food.x + 2, food.y + 2, nutSize - 5, nutSize - 5);
+      this.context.stroke();
+    }
     this.context.fillStyle = player.color;
     player.snake.nuts.forEach((nut) => {
-      this.context.fillRect(nut.x, nut.y, nut.size - 1, nut.size - 1);
+      this.context.fillRect(nut.x, nut.y, nutSize - 1, nutSize - 1);
     });
   }
 }
