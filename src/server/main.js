@@ -18,13 +18,15 @@ const playground = {
   rows: 700,
   cols: 400,
   nutSize: 10,
-  maxNuts: 4,
+  maxNuts: 10,
   speed: 1000 / 10,
   food: {
-    x: 0,
-    y: 0,
-    eaten: true,
+    x: getRandomInteger(0, 700 / 10) * 10,
+    y: getRandomInteger(0, 400 / 10) * 10,
+    size: 10,
+    color: '#fff',
   },
+  occupiedNuts: new Set(),
 };
 const clients = {};
 
@@ -37,6 +39,7 @@ server.listen(port, () => console.log(`[INFO] Listening on http://localhost:${po
 io.on('connection', (socket) => {
   const client = {
     username: socket.handshake.query.username,
+    color: getRandomColor(),
     snake: {
       x: getRandomInteger(0, playground.rows / playground.nutSize) * playground.nutSize,
       y: getRandomInteger(0, playground.cols / playground.nutSize) * playground.nutSize,
@@ -44,10 +47,9 @@ io.on('connection', (socket) => {
       deltaY: 0,
       maxNuts: playground.maxNuts,
       nuts: [],
+      died: false,
     },
-    color: getRandomColor(),
   };
-
   clients[socket.id] = client;
 
   console.log(`[INFO] Client '${client.username}' connected!`.blue);
@@ -76,8 +78,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('movement', (data) => {
-    const snake = clients[socket.id].snake;
+    const snake = client.snake;
     const { rows, cols, nutSize, food } = playground;
+
+    if (snake.died) return;
 
     if (data.direction === MOVEMENT.RIGHT && snake.deltaX === 0) {
       snake.deltaX = nutSize;
@@ -111,22 +115,40 @@ io.on('connection', (socket) => {
       snake.y = 0;
     }
 
-    snake.nuts.unshift({ x: snake.x, y: snake.y });
+    const newNutString = snake.x + ',' + snake.y;
 
-    if (food.x === snake.x && food.y === snake.y) {
-      food.eaten = true;
-      snake.maxNuts++;
+    if (playground.occupiedNuts.has(newNutString)) {
+      for (const nut of snake.nuts) {
+        playground.occupiedNuts.delete(nut.x + ',' + nut.y);
+      }
+      io.sockets.emit('serverMessage', {
+        username: 'boss',
+        message: `@${client.username}'s snake <strong>died</strong> 💀`,
+        date: new Date(),
+        type: 'message',
+      });
+      snake.died = true;
+      return;
     }
 
-    if (food.eaten) {
+    playground.occupiedNuts.add(newNutString);
+    snake.nuts.unshift({ x: snake.x, y: snake.y, size: nutSize });
+
+    if (food.x === snake.x && food.y === snake.y) {
+      io.sockets.emit('serverMessage', {
+        username: 'boss',
+        message: `@${client.username}'s score: <strong>${++snake.maxNuts}</strong> 🍎`,
+        date: new Date(),
+        type: 'message',
+      });
       food.x = getRandomInteger(0, playground.rows / playground.nutSize) * playground.nutSize;
       food.y = getRandomInteger(0, playground.cols / playground.nutSize) * playground.nutSize;
-      food.color = getRandomColor();
-      food.eaten = false;
+      food.size = playground.nutSize;
     }
 
     if (snake.nuts.length > snake.maxNuts) {
-      snake.nuts.pop();
+      const extraNut = snake.nuts.pop();
+      playground.occupiedNuts.delete(extraNut.x + ',' + extraNut.y);
     }
   });
 
@@ -135,23 +157,23 @@ io.on('connection', (socket) => {
   }, playground.speed);
 });
 
-formatTime = (input) => {
+function formatTime(input) {
   const date = new Date(input);
   const hours = date.getHours();
   const period = hours >= 12 ? 'PM' : 'AM';
   const newHours = hours > 12 ? hours - 12 : hours;
   return `${newHours}:${('0' + date.getMinutes()).slice(-2)} ${period}`;
-};
+}
 
-getRandomColor = () => {
+function getRandomColor() {
   const letters = '0123456789ABCDEF';
   let color = '#';
   for (let i = 0; i < 6; i++) {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
-};
+}
 
-getRandomInteger = (min, max) => {
+function getRandomInteger(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
-};
+}

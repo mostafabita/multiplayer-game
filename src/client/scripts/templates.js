@@ -11,6 +11,6 @@ export const messageTemplate = `
         {{/if}}
         <small class="date">{{date}}</small>
         {{#if content}}
-            <span class="content"> : {{message}}<span>
+            <span class="content"> : {{{message}}}<span>
         {{/if}}
     </li>`;
