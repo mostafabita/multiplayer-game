@@ -18,7 +18,7 @@ const playground = {
   rows: 700,
   cols: 400,
   nutSize: 10,
-  maxNuts: 10,
+  maxNuts: 5,
   speed: 1000 / 10,
   food: {
     x: getRandomInteger(0, 700 / 10) * 10,
@@ -26,7 +26,7 @@ const playground = {
     size: 10,
     color: '#fff',
   },
-  occupiedNuts: new Set(),
+  busyNuts: [],
 };
 const clients = {};
 
@@ -115,11 +115,12 @@ io.on('connection', (socket) => {
       snake.y = 0;
     }
 
-    const newNutString = snake.x + ',' + snake.y;
+    const newNut = { x: snake.x, y: snake.y, size: nutSize };
+    const busyNut = playground.busyNuts.find((n) => n.x === newNut.x && n.y === newNut.y);
 
-    if (playground.occupiedNuts.has(newNutString)) {
+    if (busyNut) {
       for (const nut of snake.nuts) {
-        playground.occupiedNuts.delete(nut.x + ',' + nut.y);
+        playground.busyNuts = playground.busyNuts.filter((n) => n.x !== nut.x || n.y !== nut.y);
       }
       io.sockets.emit('serverMessage', {
         username: 'boss',
@@ -131,24 +132,27 @@ io.on('connection', (socket) => {
       return;
     }
 
-    playground.occupiedNuts.add(newNutString);
-    snake.nuts.unshift({ x: snake.x, y: snake.y, size: nutSize });
+    snake.nuts.unshift(newNut);
+    playground.busyNuts.push(newNut);
 
-    if (food.x === snake.x && food.y === snake.y) {
-      io.sockets.emit('serverMessage', {
-        username: 'boss',
-        message: `@${client.username}'s score: <strong>${++snake.maxNuts}</strong> 🍎`,
-        date: new Date(),
-        type: 'message',
-      });
+    if (snake.x === food.x && snake.y === food.y) {
+      snake.maxNuts++;
       food.x = getRandomInteger(0, playground.rows / playground.nutSize) * playground.nutSize;
       food.y = getRandomInteger(0, playground.cols / playground.nutSize) * playground.nutSize;
       food.size = playground.nutSize;
+      io.sockets.emit('serverMessage', {
+        username: 'boss',
+        message: `@${client.username}'s score: <strong>${snake.maxNuts}</strong> 🍎`,
+        date: new Date(),
+        type: 'message',
+      });
     }
 
     if (snake.nuts.length > snake.maxNuts) {
       const extraNut = snake.nuts.pop();
-      playground.occupiedNuts.delete(extraNut.x + ',' + extraNut.y);
+      playground.busyNuts = playground.busyNuts.filter(
+        (n) => n.x !== extraNut.x || n.y !== extraNut.y
+      );
     }
   });
 
